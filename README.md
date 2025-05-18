@@ -9,3 +9,7 @@ This study aimed to develop a high-performing machine learning model trained on 
 **Data importation and inspection**
 
 The dataset was imported into R from a CSV file for analysis. Preliminary data exploration was conducted to understand the overall structure of the dataset, including the types and number of variables. A thorough assessment was carried out to identify and address any missing values or duplicate entries, which could potentially bias the results. Additionally, the distribution of the primary study outcome variable was examined using appropriate summary statistics.
+
+**Data Preprocessing**
+
+The variables were converted to their appropriate data types to ensure compatibility with downstream analyses. Categorical variables were label-encoded, assigning them corresponding numeric values to facilitate their use in machine learning models. Anomalies within the dataset were addressed, including the identification and removal of an unknown character in the 'BMI' variable. Additionally, a non-informative column, 'id', which held no predictive value for the machine learning models, was excluded from the analysis. To address class imbalance within the target variable, the majority class was downsampled to achieve a more balanced class distribution, thereby improving model fairness and performance.
