@@ -1,0 +1,112 @@
+---
+title: "Stroke Prediction-Logistic"
+author: "Nobert Wafula"
+date: "`r Sys.Date()`"
+output: word_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r warning=FALSE,message=FALSE}
+#Loading necessary packages
+library(Boruta)
+library(caret)
+library(tidyverse)
+library(pROC)
+library(caTools)
+
+#Setting working directory
+setwd("C:/Users/Muhammad Ramzan LLC/Desktop/Stroke/")
+
+#Load the dataset
+data = read_csv("Stroke.csv")
+
+#Assess the structure of the dataset
+glimpse(data)
+
+# Checking for missing values
+anyNA(data)
+
+#Checking for duplicates
+sum(duplicated(data)) 
+
+#Data preprocessing
+#Label encoding of categorical values
+categorical_vars = c("gender", "ever_married", "work_type",
+                     "Residence_type","smoking_status")
+
+data = data %>% mutate(across(all_of(categorical_vars),~as.numeric(as.factor(.))-1))
+
+#Convert categorival variables to factors
+data[categorical_vars] = lapply(data[categorical_vars], as.factor)
+
+data$bmi = as.numeric(data$bmi)
+
+#Remove NAs in BMI
+data = drop_na(data)
+
+#Remove umnecessary columns
+data$id = NULL
+
+#Converting stroke to binary
+data$stroke = ifelse(data$stroke == 0, "No", "Yes")
+data$stroke = as.factor(data$stroke)
+
+#Checking the distribution of the study Outcome.
+table(data$stroke)#There is a class imbalance
+
+
+#Handling class imbalance
+#Apply downsampling f the majority class
+data = downSample(x = data[, -11], y = data$stroke)
+table(data$Class)
+
+#Feature important analysis
+boruta_results = Boruta(Class~., data)
+print(boruta_results)
+
+#To Check only the confirmed attributes
+getSelectedAttributes(boruta_results, withTentative = TRUE)
+
+#Remove the rejected Attributes
+data$gender = NULL
+data$Residence_type = NULL
+
+#Splitting the data training and testing
+index = sample.split(data$Class,SplitRatio = 0.8)
+train_data = subset(data, index == "TRUE")
+testData = subset(data, index == "FALSE")
+table(train_data$Class)
+table(testData$Class)
+
+#Prepare a training scheme
+fitcontrol = trainControl(method = "repeatedcv", 
+                          number = 10,
+                          repeats = 3,
+                          classProbs = TRUE,
+                          summaryFunction = twoClassSummary)
+
+#Train the logistic regression model
+model = train(Class~., train_data, 
+              method = "glm",
+              metric = "ROC",
+              preProcess = c("center","scale"),
+              trControl = fitcontrol)
+
+#Make predictions
+model_pred = predict(model,testData)
+
+#Creating a confusion matrix
+cm = confusionMatrix(model_pred,testData$Class, positive = "Yes")
+cm
+
+#ROC curve
+pred = predict(model, testData,
+               type = "prob")
+roc(testData$Class, pred$Yes)
+
+
+```
+
