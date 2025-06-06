@@ -169,7 +169,7 @@ shiny::runApp("Machine-Learning-for-Stroke/shiny_app/")
 📅 Created: May 25, 2025  
 
 <p>
-  <a href="https://github.com/yourusername(https://github.com/Nobert66/)"><img src="https://img.shields.io/badge/GitHub-Profile-black?logo=github&style=flat-square" /></a>
+  <a href="https://github.com/Nobert66/"><img src="https://img.shields.io/badge/GitHub-Profile-black?logo=github&style=flat-square" /></a>
   <a href="www.linkedin.com/in/nobert-wafula-b7b1782a2"><img src="https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&style=flat-square" /></a>
 </p>
 
