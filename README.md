@@ -1,29 +1,192 @@
-**Machine-learning-Stroke**
 
-This repository contains various machine learning models trained on a stroke dataset using caret in R. The repository contain various screening tool developed by shny to assess individuals who are at risk of developing stroke 
+<h1 align="center">🧠 Machine Learning for Stroke Risk Prediction</h1>
 
-**Study Objectives**
+<p align="center">
+  <img src="https://img.shields.io/badge/R-Data%20Science-blue?logo=r&style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Shiny-App%20Deployed-brightgreen?style=for-the-badge" />
+  <img src="https://img.shields.io/badge/Machine%20Learning-HealthTech-orange?style=for-the-badge" />
+</p>
 
-This study aimed to develop a high-performing machine learning model trained on a stroke dataset and deploy it within an interactive Shiny web application. The integrated system is designed for practical use in real-world healthcare settings to facilitate stroke risk assessment, support early diagnosis, and promote personalized treatment strategies.
+<p align="center">
+  <em>A complete machine learning pipeline with real-time deployment using Shiny.<br/>
+  Built to assist in early stroke detection and personalized prevention strategies.</em>
+</p>
 
-**Data importation and inspection**
+---
 
-The dataset was imported into R from a CSV file for analysis. Preliminary data exploration was conducted to understand the overall structure of the dataset, including the types and number of variables. A thorough assessment was carried out to identify and address any missing values or duplicate entries, which could potentially bias the results. Additionally, the distribution of the primary study outcome variable was examined using appropriate summary statistics.
+## 🚀 Project Summary
 
-**Data Preprocessing**
+> 🧑‍⚕️ **Goal**: Predict the likelihood of stroke occurrence using individual health and demographic data.
 
-The variables were converted to their appropriate data types to ensure compatibility with downstream analyses. Categorical variables were label-encoded, assigning them corresponding numeric values to facilitate their use in machine learning models. Anomalies within the dataset were addressed, including the identification and removal of an unknown character in the 'BMI' variable. Additionally, a non-informative column, 'id', which held no predictive value for the machine learning models, was excluded from the analysis. To address class imbalance within the target variable, the majority class was downsampled to achieve a more balanced class distribution, thereby improving model fairness and performanc
+This project:
+- Implements multiple **ML models in R** with the `caret` and `Boruta` packages
+- Uses **feature selection**, **cross-validation**, and **resampling**
+- Deploys an **interactive Shiny app** to assess individual stroke risk
 
-**Features Selection**
+---
 
-Feature importance analysis was conducted using the Boruta algorithm, a robust wrapper method built around the random forest classifier, to identify the most relevant attributes for machine learning implementation. The Boruta analysis confirmed that the following variables were important predictors: age, hypertension, heart disease, marital status, work type, average glucose level, BMI, and smoking status. Conversely, gender and residence type were consistently identified as non-informative and thus excluded from the final model to enhance its efficiency and interpretability.
+## 🗂️ Table of Contents
 
-**Splitting the Dataset**
-To prepare the data for model development and evaluation, the dataset was partitioned into training and testing subsets using the caTools package in R. Specifically, 80% of the data were randomly allocated to the training set, which was used to train the machine learning models, while the remaining 20% were reserved as the testing set to assess the models’ generalization performance. This stratified split ensured that both subsets maintained a representative distribution of the outcome variable, thereby reducing the risk of sampling bias.
+- [📁 Project Structure](#-project-structure)
+- [📊 Data Overview](#-data-overview)
+- [🧹 Preprocessing](#-data-preprocessing)
+- [📈 Feature Selection](#-feature-selection)
+- [🧪 Model Development](#-model-training--evaluation)
+- [🌐 Shiny App](#-shiny-app)
+- [🛠️ Installation](#-installation--usage)
+- [👤 Author](#-author)
+- [📄 License](#-license)
 
-**Preparing the training scheeme.**
+---
 
-To ensure robust and reliable model training, a training control object (fitControl) was defined using the trainControl() function from the caret package in R. The training process employed a repeated 10-fold cross-validation approach, specified by method = "repeatedcv", with number = 10 indicating that the dataset was divided into 10 equal subsets (folds). In each iteration, 9 folds were used for training the model while the remaining fold was used for validation. This process was repeated 3 times (repeats = 3) with different random partitions to reduce variability and provide a more accurate estimate of model performance.
+## 📁 Project Structure
 
-The parameter classProbs = TRUE enabled the computation of class probabilities, which is essential for performance metrics like AUC (Area Under the ROC Curve). Additionally, summaryFunction = twoClassSummary specified that model evaluation should be based on metrics suitable for binary classification problems—specifically ROC (Receiver Operating Characteristic), sensitivity, and specificity. This configuration ensures that model selection is driven by metrics that capture both the discriminatory power and the balance between false positives and false negatives.
+```bash
+Machine-Learning-for-Stroke/
+├── data/               # Raw stroke dataset (CSV)
+├── models/             # Model training & evaluation scripts
+├── shiny_app/          # Shiny app code
+├── reports/            # EDA results & visualizations
+└── README.md           # This file
+```
 
+---
+
+## 📊 Data Overview
+
+- **Rows**: 5,110  
+- **Features**: 12 (demographic + health metrics)  
+- **Target**: `stroke` (binary: Yes/No)
+
+EDA ensured:
+- Type integrity, missing value cleanup
+- Removal of outliers (`BMI`)
+- Removal of irrelevant columns (`id`)
+- Detection of class imbalance (`stroke: 4700 No / 209 Yes`)
+
+---
+
+## 🧹 Data Preprocessing
+
+✔️ Label-encoded categorical variables  
+✔️ Converted BMI to numeric and removed non-numeric entries  
+✔️ Dropped `id`, `gender`, and `Residence_type` as non-informative  
+✔️ Applied **downsampling** to balance the target classes
+
+---
+
+## 🔍 Feature Selection
+
+Used the **Boruta algorithm** (based on Random Forest) to identify important predictors.
+
+🎯 **Selected Features**:
+```
+age, hypertension, heart_disease, ever_married,
+work_type, avg_glucose_level, bmi, smoking_status
+```
+
+❌ `gender` and `Residence_type` were excluded.
+
+---
+
+## 🧪 Model Training & Evaluation
+
+### 🛠️ Training Control Strategy
+
+```r
+fitcontrol = trainControl(
+  method = "repeatedcv",
+  number = 10,
+  repeats = 3,
+  classProbs = TRUE,
+  summaryFunction = twoClassSummary
+)
+```
+
+- 10-fold cross-validation repeated 3 times
+- Evaluation metrics: **AUC**, **Sensitivity**, **Specificity**
+- Resampling reduces overfitting and improves reliability
+
+---
+
+### 🤖 Models Trained
+
+| Model                  | AUC    | Accuracy | Sensitivity | Specificity |
+|-----------------------|--------|----------|-------------|-------------|
+| ✅ Logistic Regression | **0.8413** | 77.4%    | 73.8%       | 80.9%       |
+| 🌳 Random Forest       | 0.8302 | 76.2%    | 73.8%       | 78.6%       |
+| 🔍 Decision Tree       | 0.8053 | 73.8%    | 73.8%       | 73.8%       |
+| 🌀 SVM (Radial)        | 0.8163 | 73.8%    | 69.1%       | 78.6%       |
+| 🧩 K-Nearest Neighbors | 0.7333 | 67.9%    | 69.2%       | 66.7%       |
+| ⚡ GBM (in progress)   | *Tuned*| *Tuned*  | *Tuned*     | *Tuned*     |
+
+> 🥇 **Best Performer**: Logistic Regression (high AUC, simple and interpretable)
+
+---
+
+## 🌐 Shiny App
+
+<p align="center">
+  <img src="https://user-images.githubusercontent.com/placeholder/stroke-app-ui.png" alt="Shiny App Screenshot" width="80%" />
+</p>
+
+The app allows users to:
+- Enter age, glucose, work type, BMI, smoking status, etc.
+- Receive instant stroke risk predictions
+- View prediction confidence (probability output)
+
+```r
+shiny::runApp("shiny_app/")
+```
+
+---
+
+## 🛠️ Installation & Usage
+
+### 🔧 Prerequisites
+
+Install required packages:
+```r
+install.packages(c("caret", "Boruta", "tidyverse", "pROC", "caTools", "randomForest", "shiny"))
+```
+
+### 🚀 Run the App Locally
+
+```r
+# Clone the repo
+git clone https://github.com/yourusername/Machine-Learning-for-Stroke.git
+
+# Launch the app
+shiny::runApp("Machine-Learning-for-Stroke/shiny_app/")
+```
+
+---
+
+## 👤 Author
+
+**Enock Bereka**  
+📍 Data Scientist | ML Engineer | HealthTech Enthusiast  
+📅 Created: May 25, 2025  
+
+<p>
+  <a href="https://github.com/yourusername"><img src="https://img.shields.io/badge/GitHub-Profile-black?logo=github&style=flat-square" /></a>
+  <a href="https://linkedin.com/in/your-link"><img src="https://img.shields.io/badge/LinkedIn-Connect-blue?logo=linkedin&style=flat-square" /></a>
+</p>
+
+---
+
+## 📄 License
+
+Distributed under the MIT License. See `LICENSE` for more information.
+
+---
+
+## 🌟 Key Highlights
+
+✅ End-to-end data science workflow  
+✅ Real-time predictions via deployed web app  
+✅ Feature selection with interpretability  
+✅ Balanced model metrics for medical fairness  
+✅ Professionally structured & documented codebase  
+
+> 💼 **Looking for opportunities** in Data Science, AI, or HealthTech. Let’s connect!
